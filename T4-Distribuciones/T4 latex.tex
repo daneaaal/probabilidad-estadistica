@@ -1,0 +1,445 @@
+\documentclass[12pt,a4paper]{article}
+ 
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{amsmath} 
+\usepackage{amsfonts}
+\usepackage{hyperref}
+\usepackage{setspace}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{enumitem}
+ 
+\geometry{margin=2.5cm}
+\onehalfspacing
+ 
+% Configuracion para el codigo Python
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    stringstyle=\color{red},
+    commentstyle=\color{green!60!black},
+    showstringspaces=false,
+    breaklines=true,
+    frame=single,
+    rulecolor=\color{gray!30},
+    backgroundcolor=\color{gray!5}
+}
+ 
+\begin{document}
+ 
+% ------------------ PORTADA ------------------
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.4\linewidth]{pngwing.com (9).png}
+    \end{figure}
+    
+    {\Large \textbf{UNIVERSIDAD DISTRITAL FJDC}}\\[0.5cm]
+    {\large Facultad de Ingeniería}\\[2cm]
+    
+    \rule{\linewidth}{0.5mm} \\[0.4cm]
+    {\Huge \textbf{Tarea T4: Distribuciones de Probabilidad}}\\[0.3cm]
+    {\large Modelado y Validación con Python}\\[0.4cm]
+    \rule{\linewidth}{0.5mm} \\[2cm]
+    
+    \textbf{Asignatura:} Probabilidad y Estadística \\[0.5cm]
+    \textbf{Docente:} Alberto Acosta Lopez \\[0.5cm]
+    \textbf{Estudiante:} Daniel Alejandro Castro Becerra\\[0.5cm]
+    \textbf{Código:} 20242020271 \\[2cm]
+    \vfill
+\end{titlepage}
+ 
+\tableofcontents
+\newpage
+ 
+% ==========================================
+\section{Distribuciones Discretas}
+% ==========================================
+ 
+% ------------------------------------------
+\subsection{Distribución Binomial (Bernoulli)}
+% ------------------------------------------
+ 
+La distribución Binomial generaliza el experimento de Bernoulli a $n$ ensayos
+independientes, cada uno con probabilidad de éxito $p$. Su función de masa de
+probabilidad (PMF) es:
+ 
+\begin{equation}
+    P(X = k) = \binom{n}{k} p^k (1-p)^{n-k}, \quad k = 0, 1, \dots, n
+\end{equation}
+ 
+Sus parámetros principales son:
+\begin{itemize}
+    \item \textbf{Media:} $\mu = np$
+    \item \textbf{Varianza:} $\sigma^2 = np(1-p)$
+\end{itemize}
+ 
+\subsubsection*{Enunciado}
+ 
+Se lanza un dado no alterado 5 veces. El evento de éxito es obtener el número 3.
+Dado que el dado es justo, la probabilidad de éxito en cada lanzamiento es:
+\[
+    p = \frac{1}{6} \approx 0.1667, \qquad n = 5
+\]
+ 
+Se pide calcular:
+\begin{enumerate}[label=\roman*.]
+    \item $P(X = 2)$: que el 3 aparezca exactamente 2 veces.
+    \item $P(X \leq 1)$: que el 3 aparezca como máximo 1 vez.
+    \item $P(X \geq 2)$: que el 3 aparezca al menos 2 veces.
+\end{enumerate}
+ 
+\subsubsection*{Desarrollo}
+ 
+\textbf{i. Exactamente 2 veces — $P(X = 2)$}
+ 
+\begin{align}
+    P(X = 2) &= \binom{5}{2} \left(\frac{1}{6}\right)^2 \left(\frac{5}{6}\right)^3 \\
+             &= 10 \times 0.02778 \times 0.57870 \\
+             &\approx \boxed{0.1608}
+\end{align}
+ 
+\textbf{ii. Máximo 1 vez — $P(X \leq 1)$}
+ 
+\begin{align}
+    P(X \leq 1) &= P(X=0) + P(X=1) \\[4pt]
+    P(X = 0) &= \binom{5}{0} \left(\frac{1}{6}\right)^0 \left(\frac{5}{6}\right)^5
+               = \left(\frac{5}{6}\right)^5 \approx 0.4019 \\[4pt]
+    P(X = 1) &= \binom{5}{1} \left(\frac{1}{6}\right)^1 \left(\frac{5}{6}\right)^4
+               = 5 \times 0.1667 \times 0.4823 \approx 0.4019 \\[4pt]
+    P(X \leq 1) &= 0.4019 + 0.4019 \approx \boxed{0.8038}
+\end{align}
+ 
+\textbf{iii. Al menos 2 veces — $P(X \geq 2)$}
+ 
+Se usa el complemento para simplificar el cálculo:
+ 
+\begin{align}
+    P(X \geq 2) &= 1 - P(X \leq 1) \\
+                &= 1 - 0.8038 \\
+                &\approx \boxed{0.1962}
+\end{align}
+ 
+\subsubsection*{Código de Validación}
+ 
+\begin{lstlisting}
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+import numpy as np
+ 
+n, p = 5, 1/6
+ 
+# Validacion de los tres casos
+print(f"i.  P(X=2)   = {stats.binom.pmf(2, n, p):.4f}")   # 0.1608
+print(f"ii. P(X<=1)  = {stats.binom.cdf(1, n, p):.4f}")   # 0.8038
+print(f"iii.P(X>=2)  = {1 - stats.binom.cdf(1, n, p):.4f}") # 0.1962
+ 
+# Grafica de la distribucion
+x = range(n + 1)
+y = [stats.binom.pmf(i, n, p) for i in x]
+ 
+colores = ['tomato' if i >= 2 else 'skyblue' for i in x]
+ 
+plt.figure(figsize=(7, 4))
+plt.bar(x, y, color=colores, edgecolor='black')
+plt.title('Binomial: Lanzamiento de dado (n=5, p=1/6)')
+plt.xlabel('Numero de veces que aparece el 3')
+plt.ylabel('Probabilidad')
+plt.xticks(list(x))
+plt.axhline(0, color='black', linewidth=0.8)
+from matplotlib.patches import Patch
+leyenda = [Patch(color='tomato', label='X >= 2 (al menos 2)'),
+           Patch(color='skyblue', label='X < 2')]
+plt.legend(handles=leyenda)
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+ 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\linewidth]{binom_dado.png}
+    \caption{Distribución Binomial para $n=5$ lanzamientos de un dado con $p=1/6$.
+             Las barras rojas representan el evento $X \geq 2$.}
+\end{figure}
+ 
+\newpage
+ 
+% ------------------------------------------
+\subsection{Distribución de Poisson}
+% ------------------------------------------
+ 
+La distribución de Poisson modela el número de eventos que ocurren en un intervalo
+fijo cuando la tasa promedio $\lambda$ es constante. Su PMF es:
+ 
+\begin{equation}
+    P(X = k) = \frac{e^{-\lambda} \lambda^k}{k!}, \quad k = 0, 1, 2, \dots
+\end{equation}
+ 
+Sus parámetros son:
+\begin{itemize}
+    \item \textbf{Media:} $\mu = \lambda$
+    \item \textbf{Varianza:} $\sigma^2 = \lambda$
+\end{itemize}
+ 
+\subsubsection*{Enunciado}
+ 
+La probabilidad de que un automóvil sufra un accidente es $p = 0.001$. Entre las 4pm
+y 6pm, aproximadamente 1000 autos pasan por una intersección. ¿Cuál es la
+probabilidad de que ocurran \textbf{2 o más accidentes}?
+ 
+\subsubsection*{Justificación del modelo}
+ 
+Dado que $n = 1000$ es grande y $p = 0.001$ es pequeño, se cumplen las condiciones
+para aproximar la Binomial con una Poisson, donde:
+\[
+    \lambda = n \cdot p = 1000 \times 0.001 = 1
+\]
+ 
+\subsubsection*{Desarrollo}
+ 
+Se pide $P(X \geq 2)$. Usando el complemento:
+ 
+\begin{align}
+    P(X \geq 2) &= 1 - P(X \leq 1) = 1 - \bigl[P(X=0) + P(X=1)\bigr]
+\end{align}
+ 
+\textbf{Calculando $P(X = 0)$:}
+\begin{align}
+    P(X = 0) &= \frac{e^{-1} \cdot 1^0}{0!} = e^{-1} \approx 0.3679
+\end{align}
+ 
+\textbf{Calculando $P(X = 1)$:}
+\begin{align}
+    P(X = 1) &= \frac{e^{-1} \cdot 1^1}{1!} = e^{-1} \approx 0.3679
+\end{align}
+ 
+\textbf{Resultado final:}
+\begin{align}
+    P(X \geq 2) &= 1 - (0.3679 + 0.3679) \\
+                &= 1 - 0.7358 \\
+                &\approx \boxed{0.2642}
+\end{align}
+ 
+Existe aproximadamente un \textbf{26.42\%} de probabilidad de que ocurran 2 o más
+accidentes en esa intersección durante el intervalo de tiempo analizado.
+ 
+\subsubsection*{Código de Validación}
+ 
+\begin{lstlisting}
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+import numpy as np
+ 
+lam = 1  # lambda = n * p = 1000 * 0.001
+ 
+# Validacion
+p0 = stats.poisson.pmf(0, lam)
+p1 = stats.poisson.pmf(1, lam)
+p_geq2 = 1 - stats.poisson.cdf(1, lam)
+ 
+print(f"P(X=0)   = {p0:.4f}")    # 0.3679
+print(f"P(X=1)   = {p1:.4f}")    # 0.3679
+print(f"P(X>=2)  = {p_geq2:.4f}") # 0.2642
+ 
+# Grafica
+x = range(8)
+y = [stats.poisson.pmf(i, lam) for i in x]
+colores = ['tomato' if i >= 2 else 'skyblue' for i in x]
+ 
+plt.figure(figsize=(7, 4))
+plt.bar(x, y, color=colores, edgecolor='black')
+plt.title(f'Poisson: Accidentes en interseccion ($\\lambda$=1)')
+plt.xlabel('Numero de accidentes')
+plt.ylabel('Probabilidad')
+plt.xticks(list(x))
+from matplotlib.patches import Patch
+leyenda = [Patch(color='tomato', label='X >= 2'),
+           Patch(color='skyblue', label='X < 2')]
+plt.legend(handles=leyenda)
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+ 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\linewidth]{poisson_accidentes.png}
+    \caption{Distribución de Poisson con $\lambda = 1$. Las barras rojas representan
+             el evento de 2 o más accidentes ($P \approx 0.2642$).}
+\end{figure}
+ 
+\newpage
+ 
+% ==========================================
+\section{Distribuciones Continuas}
+% ==========================================
+ 
+% ------------------------------------------
+\subsection{Distribución Normal}
+% ------------------------------------------
+ 
+La distribución Normal es la más importante en estadística. Su función de densidad
+de probabilidad (PDF) es:
+ 
+\begin{equation}
+    f(x) = \frac{1}{\sigma\sqrt{2\pi}} \, e^{-\frac{(x-\mu)^2}{2\sigma^2}},
+    \quad x \in \mathbb{R}
+\end{equation}
+ 
+Para calcular probabilidades se estandariza mediante:
+\begin{equation}
+    Z = \frac{X - \mu}{\sigma} \sim N(0, 1)
+\end{equation}
+ 
+\subsubsection*{Enunciado}
+ 
+Dada una distribución normal estándar $Z \sim N(0,1)$, calcule el área bajo la curva:
+ 
+\begin{enumerate}[label=\alph*)]
+    \item A la derecha de $z = 1.84$.
+    \item Entre $z = -1.97$ y $z = 0.86$.
+\end{enumerate}
+ 
+\subsubsection*{Desarrollo}
+ 
+\textbf{a) Área a la derecha de $z = 1.84$}
+ 
+El área a la derecha corresponde a $P(Z > 1.84)$. Usando la tabla de la distribución
+normal estándar:
+ 
+\begin{align}
+    P(Z > 1.84) &= 1 - P(Z \leq 1.84) \\
+                &= 1 - \Phi(1.84) \\
+                &= 1 - 0.9671 \\
+                &\approx \boxed{0.0329}
+\end{align}
+ 
+Esto significa que solo el \textbf{3.29\%} de los valores de una distribución normal
+estándar superan $z = 1.84$.
+ 
+\textbf{b) Área entre $z = -1.97$ y $z = 0.86$}
+ 
+El área entre dos valores se obtiene como la diferencia de acumuladas:
+ 
+\begin{align}
+    P(-1.97 < Z < 0.86) &= \Phi(0.86) - \Phi(-1.97) \\
+                         &= 0.8051 - 0.0244 \\
+                         &\approx \boxed{0.7807}
+\end{align}
+ 
+El \textbf{78.07\%} del área bajo la curva normal estándar se encuentra entre
+$z = -1.97$ y $z = 0.86$.
+ 
+\subsubsection*{Código de Validación}
+ 
+\begin{lstlisting}
+import numpy as np
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+ 
+# Validacion de los dos casos
+p_a = 1 - stats.norm.cdf(1.84)
+p_b = stats.norm.cdf(0.86) - stats.norm.cdf(-1.97)
+ 
+print(f"a) P(Z > 1.84)              = {p_a:.4f}")  # 0.0329
+print(f"b) P(-1.97 < Z < 0.86)     = {p_b:.4f}")  # 0.7807
+ 
+# --- Grafica a) ---
+x = np.linspace(-4, 4, 400)
+y = stats.norm.pdf(x)
+ 
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
+ 
+# Subplot a
+ax1.plot(x, y, color='black', lw=2)
+ax1.fill_between(x, y, where=(x >= 1.84), color='steelblue', alpha=0.5,
+                 label=f'P(Z>1.84) = {p_a:.4f}')
+ax1.axvline(1.84, color='steelblue', linestyle='--')
+ax1.set_title('a) Área a la derecha de z = 1.84')
+ax1.set_xlabel('z')
+ax1.set_ylabel('Densidad')
+ax1.legend()
+ 
+# Subplot b
+ax2.plot(x, y, color='black', lw=2)
+ax2.fill_between(x, y, where=((x >= -1.97) & (x <= 0.86)),
+                 color='darkorange', alpha=0.5,
+                 label=f'P(-1.97<Z<0.86) = {p_b:.4f}')
+ax2.axvline(-1.97, color='darkorange', linestyle='--')
+ax2.axvline(0.86, color='darkorange', linestyle='--')
+ax2.set_title('b) Área entre z = -1.97 y z = 0.86')
+ax2.set_xlabel('z')
+ax2.set_ylabel('Densidad')
+ax2.legend()
+ 
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+ 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{normal_areas.png}
+    \caption{Distribución Normal estándar: \textit{(a)} área a la derecha de $z=1.84$
+             ($P \approx 0.0329$); \textit{(b)} área entre $z=-1.97$ y $z=0.86$
+             ($P \approx 0.7807$).}
+\end{figure}
+ 
+% ==========================================
+\section{Resumen de Resultados}
+% ==========================================
+ 
+\begin{table}[H]
+\centering
+\begin{tabular}{llll}
+\toprule
+\textbf{Distribución} & \textbf{Caso} & \textbf{Expresión} & \textbf{Resultado} \\
+\midrule
+Binomial ($n=5, p=1/6$) & i   & $P(X=2)$           & $0.1608$ \\
+Binomial ($n=5, p=1/6$) & ii  & $P(X \leq 1)$      & $0.8038$ \\
+Binomial ($n=5, p=1/6$) & iii & $P(X \geq 2)$      & $0.1962$ \\
+\midrule
+Poisson ($\lambda=1$)   &     & $P(X \geq 2)$      & $0.2642$ \\
+\midrule
+Normal estándar         & a   & $P(Z > 1.84)$            & $0.0329$ \\
+Normal estándar         & b   & $P(-1.97 < Z < 0.86)$    & $0.7807$ \\
+\bottomrule
+\end{tabular}
+\caption{Resumen de todos los resultados obtenidos en la tarea T4.}
+\end{table}
+ 
+% ==========================================
+\section{Conclusiones}
+% ==========================================
+ 
+\begin{enumerate}
+    \item \textbf{Distribución Binomial:} permite modelar experimentos con resultados
+    dicotómicos en $n$ ensayos independientes. En el ejercicio del dado, el complemento
+    resultó ser una herramienta clave para calcular $P(X \geq 2)$ de manera eficiente,
+    evitando sumar múltiples términos individualmente.
+ 
+    \item \textbf{Distribución de Poisson:} cuando $n$ es grande y $p$ es pequeño, la
+    Binomial puede aproximarse con Poisson usando $\lambda = np$. En el ejercicio de
+    accidentes, esta aproximación simplificó considerablemente el cálculo, obteniendo
+    que hay un 26.42\% de probabilidad de que ocurran 2 o más accidentes en la
+    intersección durante el intervalo estudiado.
+ 
+    \item \textbf{Distribución Normal:} el uso de la estandarización a $Z$ permite calcular
+    cualquier probabilidad con la tabla de la distribución normal estándar. Para áreas
+    a la derecha se aplica el complemento de la acumulada, y para áreas entre dos
+    valores se calcula la diferencia de acumuladas, como se verificó en los dos casos
+    del ejemplo 6.2.
+ 
+    \item \textbf{Python como herramienta de validación:} el uso de \texttt{scipy.stats}
+    permitió verificar con precisión todos los resultados obtenidos manualmente, mientras
+    que \texttt{matplotlib} facilitó la visualización de las áreas de probabilidad,
+    reforzando la interpretación geométrica de cada distribución.
+\end{enumerate}
+ 
+\end{document}
