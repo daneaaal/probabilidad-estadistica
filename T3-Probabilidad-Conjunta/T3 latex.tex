@@ -1,0 +1,317 @@
+\documentclass[12pt,a4paper]{article}
+ 
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{booktabs}
+\usepackage{array}
+ 
+\geometry{margin=2.5cm}
+\onehalfspacing
+ 
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    stringstyle=\color{red},
+    commentstyle=\color{green!60!black},
+    showstringspaces=false,
+    breaklines=true,
+    frame=single,
+    rulecolor=\color{gray!30},
+    backgroundcolor=\color{gray!5}
+}
+ 
+\begin{document}
+ 
+% ------------------ PORTADA ------------------
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+ 
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.5\linewidth]{pngwing.com (9).png}
+    \end{figure}
+ 
+    \vspace{0.5cm}
+    {\Large \textbf{UNIVERSIDAD DISTRITAL FJDC}}\\[0.5cm]
+    {\large Facultad de Ingeniería}\\[2cm]
+ 
+    \rule{\linewidth}{0.5mm} \\[0.4cm]
+    {\Huge \textbf{Probabilidad Conjunta en Python}}\\[0.3cm]
+    \rule{\linewidth}{0.5mm} \\[2cm]
+ 
+    \textbf{Asignatura:} Probabilidad y Estadística \\[0.5cm]
+    \textbf{Docente:} Alberto Acosta Lopez \\[0.5cm]
+    \textbf{Estudiante:} Daniel Alejandro Castro Becerra\\[0.5cm]
+    \textbf{Código:} 20242020271 \\[2cm]
+ 
+    \vfill
+\end{titlepage}
+ 
+ 
+% ------------------ INDICE ------------------
+\tableofcontents
+\newpage
+ 
+% ------------------ INTRODUCCION ------------------
+\section{Introducción}
+ 
+En el estudio de la probabilidad, las \textbf{funciones de probabilidad conjunta} permiten modelar el comportamiento simultáneo de dos o más variables aleatorias. Formalmente, dadas dos variables aleatorias $X$ e $Y$, se define su distribución conjunta como la función que describe la probabilidad de que ambas tomen simultáneamente ciertos valores.
+ 
+Dependiendo de la naturaleza del espacio muestral, se distinguen dos casos fundamentales:
+ 
+\begin{itemize}
+    \item \textbf{Caso discreto:} Se trabaja con una \textit{función de masa de probabilidad conjunta} (FMP) $f(x, y) = P(X = x,\, Y = y)$, que asigna probabilidades a pares de valores enteros. Debe cumplir que $f(x,y) \geq 0$ y $\sum_x \sum_y f(x,y) = 1$.
+ 
+    \item \textbf{Caso continuo:} Se trabaja con una \textit{función de densidad de probabilidad conjunta} (FDP) $f(x, y)$, donde la probabilidad sobre una región $A$ se obtiene integrando: $P((X,Y) \in A) = \iint_A f(x,y)\, dx\, dy$. Debe cumplir que $f(x,y) \geq 0$ y $\int_{-\infty}^{\infty}\int_{-\infty}^{\infty} f(x,y)\, dx\, dy = 1$.
+\end{itemize}
+ 
+A partir de la distribución conjunta también se pueden derivar las \textbf{distribuciones marginales}, que describen el comportamiento individual de cada variable ignorando la otra. Para el caso discreto: $f_X(x) = \sum_y f(x,y)$ y $f_Y(y) = \sum_x f(x,y)$.
+ 
+En esta práctica se desarrollan dos aplicaciones utilizando Python para el cálculo numérico y la visualización gráfica, una para cada tipo de espacio muestral.
+ 
+\newpage
+% ------------------ CASO DISCRETO ------------------
+\section{Aplicación 1: Caso Discreto (Control de Calidad)}
+ 
+\subsection{Enunciado del Problema}
+Un inspector de calidad extrae al azar una muestra de \textbf{2 artículos} de un lote que contiene \textbf{10 objetos}: 3 artículos con defectos graves, 2 con defectos leves y 5 en perfecto estado.
+ 
+Sea $X$ el número de artículos con defectos graves e $Y$ el número de artículos con defectos leves en la muestra. Determine la función de masa de probabilidad conjunta $f(x, y)$, calcule las distribuciones marginales y visualice la distribución.
+ 
+\subsection{Formulación Matemática}
+ 
+La selección de artículos sin reemplazo de un lote con categorías definidas sigue una distribución \textbf{hipergeométrica multivariada}. La función de masa de probabilidad conjunta es:
+ 
+\[
+f(x, y) = \frac{\dbinom{3}{x} \dbinom{2}{y} \dbinom{5}{2-x-y}}{\dbinom{10}{2}}, \quad x, y \in \{0, 1, 2\},\; x + y \leq 2
+\]
+ 
+donde $\binom{10}{2} = 45$ es el total de formas de elegir 2 artículos del lote.
+ 
+\subsubsection*{Tabla de valores de $f(x,y)$}
+ 
+Calculando cada combinación válida:
+ 
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{c|ccc|c}
+\toprule
+$f(x,y)$ & $y=0$ & $y=1$ & $y=2$ & $f_X(x)$ \\
+\midrule
+$x=0$ & $10/45$ & $10/45$ & $1/45$ & $21/45$ \\
+$x=1$ & $15/45$ & $6/45$  & $0$    & $21/45$ \\
+$x=2$ & $3/45$  & $0$     & $0$    & $3/45$  \\
+\midrule
+$f_Y(y)$ & $28/45$ & $16/45$ & $1/45$ & $1$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+ 
+\subsubsection*{Distribuciones marginales}
+ 
+La distribución marginal de $X$ (defectos graves) se obtiene sumando sobre todos los valores de $Y$:
+\[
+f_X(x) = \sum_{y=0}^{2-x} f(x,y) = \frac{\binom{3}{x}\binom{7}{2-x}}{\binom{10}{2}}
+\]
+ 
+La distribución marginal de $Y$ (defectos leves) se obtiene sumando sobre todos los valores de $X$:
+\[
+f_Y(y) = \sum_{x=0}^{2-y} f(x,y) = \frac{\binom{2}{y}\binom{8}{2-y}}{\binom{10}{2}}
+\]
+ 
+\subsection{Implementación en Python}
+ 
+\begin{lstlisting}
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.special import comb
+ 
+def pmf_conjunta(x, y):
+    if x + y > 2:
+        return 0
+    num = comb(3, x) * comb(2, y) * comb(5, 2 - x - y)
+    den = comb(10, 2)
+    return num / den
+ 
+# Construccion de la tabla conjunta
+valores = [0, 1, 2]
+x_v, y_v = np.meshgrid(valores, valores)
+z_v = np.array([[pmf_conjunta(x, y) for x in valores] for y in valores])
+ 
+# Distribuciones marginales
+marginal_x = z_v.sum(axis=0)  # suma sobre y
+marginal_y = z_v.sum(axis=1)  # suma sobre x
+print("Distribucion marginal de X:", marginal_x)
+print("Distribucion marginal de Y:", marginal_y)
+print("Suma total:", z_v.sum())
+ 
+# Visualizacion 3D
+fig = plt.figure(figsize=(8, 6))
+ax = fig.add_subplot(111, projection='3d')
+x_f, y_f, z_f = x_v.flatten(), y_v.flatten(), z_v.flatten()
+ 
+ax.bar3d(x_f, y_f, 0, 0.4, 0.4, z_f, color='cyan', alpha=0.7)
+ax.set_title('PMF Conjunta: Distribucion de Defectos')
+ax.set_xlabel('Defectos Graves (X)')
+ax.set_ylabel('Defectos Leves (Y)')
+ax.set_zlabel('Probabilidad f(x,y)')
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+ 
+\subsection{Análisis de Resultados}
+ 
+La gráfica de barras tridimensionales (Figura \ref{fig:discreta}) muestra la distribución de masa de probabilidad conjunta. Se observa que:
+ 
+\begin{itemize}
+    \item La combinación más probable es $(X=1, Y=0)$ con $f(1,0) = 15/45 \approx 0.333$, lo que corresponde a extraer exactamente un artículo con defecto grave y ninguno con defecto leve.
+    \item La probabilidad disminuye notablemente cuando $x + y$ se aproxima a 2, ya que hay menos artículos perfectos disponibles para completar la muestra.
+    \item Combinaciones como $(X=2, Y=1)$ o $(X=1, Y=2)$ son imposibles ($f = 0$) pues implicarían extraer más de 2 artículos en total.
+    \item La suma de todas las probabilidades es $\sum_{x,y} f(x,y) = 1$, verificando que la función es válida.
+\end{itemize}
+ 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.65\linewidth]{descarga (2).png}
+    \caption{PMF conjunta de defectos graves ($X$) y defectos leves ($Y$) en una muestra de 2 artículos extraídos de un lote de 10.}
+    \label{fig:discreta}
+\end{figure}
+ 
+\newpage
+% ------------------ CASO CONTINUO ------------------
+\section{Aplicación 2: Caso Continuo (Vida Útil de Componentes)}
+ 
+\subsection{Enunciado del Problema}
+Se modela el tiempo de fallo de dos componentes electrónicos mediante una función de densidad de probabilidad conjunta en un intervalo de tiempo normalizado $[0, 1]$. Se requiere hallar la probabilidad de que ambos componentes fallen antes de la mitad del tiempo esperado, es decir, $P(X \leq 0.5,\, Y \leq 0.5)$.
+ 
+\subsection{Formulación Matemática}
+ 
+La función de densidad conjunta está dada por:
+\[
+f(x, y) = \frac{2}{3}(x + 2y), \quad 0 \leq x \leq 1,\; 0 \leq y \leq 1
+\]
+ 
+\subsubsection*{Verificación de validez}
+ 
+Se comprueba que $f$ es una densidad de probabilidad válida:
+\[
+\int_0^1 \int_0^1 \frac{2}{3}(x + 2y)\, dy\, dx 
+= \frac{2}{3} \int_0^1 \left[ xy + y^2 \right]_0^1 dx 
+= \frac{2}{3} \int_0^1 (x + 1)\, dx 
+= \frac{2}{3} \left[\frac{x^2}{2} + x\right]_0^1 
+= \frac{2}{3} \cdot \frac{3}{2} = 1 \checkmark
+\]
+ 
+\subsubsection*{Cálculo analítico de la probabilidad}
+ 
+La probabilidad buscada se obtiene mediante la integral doble:
+\[
+P(X \leq 0.5,\, Y \leq 0.5) = \int_{0}^{0.5} \int_{0}^{0.5} \frac{2}{3}(x + 2y)\, dy\, dx
+\]
+ 
+Resolviendo la integral interior respecto a $y$:
+\[
+\int_0^{0.5} \frac{2}{3}(x + 2y)\, dy = \frac{2}{3}\left[xy + y^2\right]_0^{0.5} = \frac{2}{3}\left(\frac{x}{2} + \frac{1}{4}\right)
+\]
+ 
+Luego, integrando respecto a $x$:
+\[
+\int_0^{0.5} \frac{2}{3}\left(\frac{x}{2} + \frac{1}{4}\right) dx = \frac{2}{3}\left[\frac{x^2}{4} + \frac{x}{4}\right]_0^{0.5} = \frac{2}{3}\left(\frac{1}{16} + \frac{1}{8}\right) = \frac{2}{3} \cdot \frac{3}{16} = \frac{1}{8} = 0.125
+\]
+ 
+\subsubsection*{Distribuciones marginales}
+ 
+La densidad marginal de $X$ es:
+\[
+f_X(x) = \int_0^1 \frac{2}{3}(x + 2y)\, dy = \frac{2}{3}\left[xy + y^2\right]_0^1 = \frac{2}{3}(x + 1), \quad 0 \leq x \leq 1
+\]
+ 
+La densidad marginal de $Y$ es:
+\[
+f_Y(y) = \int_0^1 \frac{2}{3}(x + 2y)\, dx = \frac{2}{3}\left[\frac{x^2}{2} + 2xy\right]_0^1 = \frac{2}{3}\left(\frac{1}{2} + 2y\right), \quad 0 \leq y \leq 1
+\]
+ 
+\subsection{Implementación en Python}
+ 
+\begin{lstlisting}
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import dblquad
+ 
+# Funcion de densidad conjunta
+f = lambda y, x: (2/3) * (x + 2*y)
+ 
+# Calculo numerico de la probabilidad
+prob, error = dblquad(f, 0, 0.5, lambda x: 0, lambda x: 0.5)
+print(f"Probabilidad calculada P(X<0.5, Y<0.5): {prob:.4f}")
+print(f"Valor analitico esperado:                0.1250")
+print(f"Error de integracion estimado:           {error:.2e}")
+ 
+# Visualizacion de la superficie de densidad
+x = np.linspace(0, 1, 50)
+y = np.linspace(0, 1, 50)
+X, Y = np.meshgrid(x, y)
+Z = f(Y, X)
+ 
+fig = plt.figure(figsize=(10, 6))
+ax = fig.add_subplot(111, projection='3d')
+surf = ax.plot_surface(X, Y, Z, cmap='viridis', edgecolor='none', alpha=0.9)
+ax.set_title('PDF Conjunta: Densidad de Fallo de Componentes')
+ax.set_xlabel('Tiempo X')
+ax.set_ylabel('Tiempo Y')
+ax.set_zlabel('Densidad f(x,y)')
+plt.colorbar(surf, shrink=0.5, aspect=5)
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+ 
+\subsection{Análisis de Resultados}
+ 
+El cálculo numérico con \texttt{dblquad} devuelve $P(X \leq 0.5, Y \leq 0.5) = 0.1250$, resultado que coincide exactamente con el valor analítico obtenido en la sección anterior ($1/8$), confirmando la correcta implementación.
+ 
+La superficie de densidad (Figura \ref{fig:continua}) ilustra las siguientes características:
+ 
+\begin{itemize}
+    \item La densidad $f(x,y)$ crece de forma lineal tanto en $x$ como en $y$, lo que indica que valores más altos del tiempo de ambos componentes son más probables dentro del dominio $[0,1]^2$.
+    \item El punto de mínima densidad se encuentra en el origen $(0, 0)$, donde $f(0,0) = 0$.
+    \item El punto de máxima densidad se ubica en $(1, 1)$, donde $f(1,1) = \frac{2}{3}(1 + 2) = 2$.
+    \item La probabilidad $P(X \leq 0.5, Y \leq 0.5) = 0.125$ representa solo el 12.5\% de toda la probabilidad, lo cual es coherente con que la densidad en esa región del cuadrante inferior izquierdo es relativamente baja.
+\end{itemize}
+ 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.85\linewidth]{descarga (1).png}
+    \caption{Función de densidad de probabilidad conjunta $f(x,y) = \frac{2}{3}(x+2y)$ para los tiempos de fallo de dos componentes electrónicos.}
+    \label{fig:continua}
+\end{figure}
+ 
+\newpage
+% ------------------ CONCLUSIONES ------------------
+\section{Conclusiones}
+ 
+A partir del desarrollo de las dos aplicaciones se pueden extraer las siguientes conclusiones:
+ 
+\begin{itemize}
+    \item El uso de herramientas computacionales como Python, junto con librerías como \texttt{NumPy}, \texttt{SciPy} y \texttt{Matplotlib}, permite calcular y visualizar distribuciones de probabilidad conjunta de forma eficiente, reduciendo el margen de error humano en operaciones combinatorias e integrales complejas.
+ 
+    \item En el \textbf{caso discreto}, la distribución hipergeométrica multivariada modela adecuadamente el problema de muestreo sin reemplazo. La tabla de valores conjuntos y la gráfica de barras 3D permiten identificar con claridad los pares $(x, y)$ de mayor probabilidad, siendo $(1, 0)$ el más probable con un $33.3\%$.
+ 
+    \item En el \textbf{caso continuo}, el resultado analítico $P(X \leq 0.5, Y \leq 0.5) = 1/8 = 0.125$ fue confirmado numéricamente por \texttt{dblquad}, lo que valida tanto la formulación matemática como la implementación en Python. La superficie de densidad evidencia que la probabilidad se concentra hacia valores altos de $x$ e $y$.
+ 
+    \item Las \textbf{distribuciones marginales} complementan el análisis al describir el comportamiento individual de cada variable, siendo útiles para determinar si $X$ e $Y$ son independientes (lo cual ocurre cuando $f(x,y) = f_X(x) \cdot f_Y(y)$).
+ 
+\end{itemize}
+ 
+\end{document}
